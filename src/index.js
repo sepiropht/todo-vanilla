@@ -7,10 +7,37 @@ import {
   ul,
   li,
   form,
-  button
+  button,
+  a
 } from "./utils/elements";
 import store from "./store/store";
 import swapNodes from "./utils/swapNodes";
+
+const route = {
+  "/": () => {
+    window.history.pushState({}, "", "/");
+    swapNodes(document.querySelector(".dom").children["0"], App());
+  },
+  "/about": () => {
+    window.history.pushState({}, "", "about");
+    swapNodes(document.querySelector(".dom").children["0"], About());
+  }
+};
+
+const About = () =>
+  h1(
+    "About",
+    a(
+      {
+        href: "#",
+        onclick: e => {
+          e.preventDefault();
+          route["/"]();
+        }
+      },
+      "back"
+    )
+  );
 
 let id = store.state.todos.length;
 const Input = () =>
@@ -21,6 +48,7 @@ const Input = () =>
     name: "todo",
     onchange: e => {
       store.state.formValue = e.target.value;
+      e.target.value = "";
     }
   });
 
@@ -38,15 +66,15 @@ const Todos = props => {
   });
   return el;
 };
-const App = props => {
+export const App = props => {
   return div(
     { id: `app` },
     h1("Todos"),
+    Todos(store.state),
     form(
       {
         onsubmit: e => {
           e.preventDefault();
-          debugger;
           store.addTodo({
             id: id++,
             text: store.state.formValue
@@ -55,10 +83,41 @@ const App = props => {
         }
       },
       Input(),
-      button({ type: "submit" }, "add todo")
-    ),
-    Todos(store.state)
+      button({ type: "submit" }, "add todo"),
+      div(
+        a(
+          {
+            onclick: e => {
+              e.preventDefault();
+              linkTo("SHOW_ALL");
+            }
+          },
+          "SHOW_ALL"
+        ),
+        a(
+          {
+            onclick: e => {
+              e.preventDefault();
+              linkTo("SHOW_ACTIVE");
+            }
+          },
+          "SHOW_ACTIVE"
+        ),
+        a(
+          {
+            onclick: e => {
+              e.preventDefault();
+              route["/about"]();
+            }
+          },
+          "About"
+        )
+      )
+    )
   );
 };
+function linkTo(state) {
+  swapNodes;
+}
 
 document.querySelector(".dom").appendChild(App());
